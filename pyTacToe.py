@@ -1,3 +1,5 @@
+from random import randint
+
 class Game(object):
   def __init__(self):
     self.board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -100,6 +102,18 @@ class Game(object):
       return "O"
     else:
       return " "
+
+  def ai_make_move(self):
+    # the most basic AI, make moves at random
+    # Make a list of all possible moves
+    open_move_index = []
+    for i, val in enumerate(self.board):
+      if val == 0:
+        open_move_index.append(i)
+
+    # randomly pick one of the possible valid moves
+    move = open_move_index[randint(0,len(open_move_index) - 1)]
+    self.make_move(self.current_player, move)
   
   def play(self):
     """
@@ -113,8 +127,12 @@ class Game(object):
 
     while not self.is_game_over:
       self.display_game_board()
-      move = self.ask_for_move()
-      self.make_move(self.current_player, move)
+      if self.current_player == 1:
+        move = self.ask_for_move()
+        self.make_move(self.current_player, move)
+      else:
+        self.ai_make_move()
+
       self.current_player *= -1 # flip the current player
 
 # start up the game
