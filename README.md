@@ -10,6 +10,6 @@ $ python pyTacToe.py
 
 ## TODO
 
- - [ ] Ask if X wants to go first
+ - [x] Ask what who each player is before starting game (human or various AIs)
  - [x] Add AI
  - [ ] Add better AI

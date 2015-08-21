@@ -1,65 +1,56 @@
 from random import randint
+import os
 
 class Game(object):
   def __init__(self):
     self.board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
     self.is_game_over = False
-    self.winner = 0
+    self.winner = 0 # nobody yet
     self.current_player = 1
     self.move_number = 0
 
-  def make_move(self, player, index):
+  def make_move(self, move):
+    """ Take current_player's turn by choosing a move.
+
+    Args:
+      move (int): index of the move on the board, 0-8
+
+    Raises:
+      TypeError: If move is not of type int
+      IndexError: If move is out of bounds for the board
+      ValueError: If the move is not valid (not on board or space is taken)
     """
-    Make a move in the game
-    :param player: 1 for X, -1 for O
-    :param index: 0-8
-    """
+    # make sure move is valid (int, 0-8, and space is open)
+    if type(move) is not int:
+      raise TypeError("move must be an int")
+
+    if move < 0 or move > 8:
+      raise IndexError("move must be 0-8")
+
+    if self.board[move] != 0:
+      raise ValueError("move cannot point to a filled space")
+
     # update the board
-    self.board[index] = player
+    self.board[move] = self.current_player
     self.move_number += 1
 
     # check if player just won, or if it was a cats game
-    if self.did_player_win(player):
-      self.display_game_board()
-      self.winner = player
-      print "Looks like %s has won. Good game." % (self.player_to_str(player))
-      print
-      self.is_game_over = True
+    if self.did_player_win():
+      self.winner = self.current_player
+      self.is_game_over= True
     elif self.is_board_full():
-      self.display_game_board()
-      print "Aw shucks! its a cats game. Lame"
-      print
       self.is_game_over = True
-  
-  def ask_for_move(self):
-    """
-    returns int of move index
-    """
-    move = 0
-    while True:
-      move = raw_input("Choose your spot: ")
-      try:
-        move = int(move) - 1
-      except ValueError:
-        print "You must enter an integer, 1-9."
-        continue
 
-      if move < 0 or move > 8:
-        print "That move is not even on the board."
-      elif self.board[move] != 0:
-        print "That spot is already taken."
-      else:
-        break
+    # flip the current player
+    self.current_player *= -1
 
-    return move
-
-  def did_player_win(self, player):
-    """
-    check to see if the player just won. This should be called from make_move
-    returns True if the player won and False otherwise
+  def did_player_win(self):
+    """ Check if the current_player has won.
+    Returns:
+      bool: True if the current_player has won and False otherwise.
     """
     b = self.board
-    p = player
+    p = self.current_player
     # brute force check all possible combos
     return ((b[0] == p and b[1] == p and b[2] == p) or # across the top
     (b[3] == p and b[4] == p and b[5] == p) or # across the middle
@@ -71,8 +62,9 @@ class Game(object):
     (b[2] == p and b[4] == p and b[6] == p)) # diagonal
 
   def is_board_full(self):
-    """
-    check to see if the board is full. AKA a cats game
+    """ Check if the board is full.
+    Returns:
+      bool: True if the board is full (AKA cats game) and False otherwise.
     """
     for i in self.board:
       if i == 0:
@@ -80,61 +72,133 @@ class Game(object):
 
     return True
 
-  def display_game_board(self):
-    print
-    print
-    print "  %s | %s | %s" % (self.disp_cell(0), self.disp_cell(1), self.disp_cell(2))
-    print " ---+---+---  Move # %i" % (self.move_number)
-    print "  %s | %s | %s" % (self.disp_cell(3), self.disp_cell(4), self.disp_cell(5))
-    print " ---+---+---  %s's turn" % (self.player_to_str(self.current_player))
-    print "  %s | %s | %s" % (self.disp_cell(6), self.disp_cell(7), self.disp_cell(8))
-    print
+def clear_screen():
+  """ http://stackoverflow.com/questions/517970/how-to-clear-python-interpreter-console """
+  os.system(['clear','cls'][os.name == 'nt'])
 
-  def disp_cell(self, index):
-    if self.board[index] == 0:
-      return index + 1
-    return self.player_to_str(self.board[index])
+def conv_player_code(code):
+  """ convert an internal player code to a human readable value """
+  if code == 1:
+    return "X"
+  if code == -1:
+    return "O"
 
-  def player_to_str(self, player):
-    if player == 1:
-      return "X"
-    elif player == -1:
-      return "O"
+def display_game_board(game):
+  """ print the game board to the console in human readable form """
+
+  # convert the board to something we can easily print
+  b = []
+  for i, v in enumerate(game.board):
+    if v == 0:
+      b.append(str(i + 1)) # insert the space number to so making moves is easy
     else:
-      return " "
+      b.append(conv_player_code(v))
 
-  def ai_make_move(self):
-    # the most basic AI, make moves at random
-    # Make a list of all possible moves
-    open_move_index = []
-    for i, val in enumerate(self.board):
-      if val == 0:
-        open_move_index.append(i)
+  clear_screen()
+  print "  %s | %s | %s" % (b[0], b[1], b[2])
+  print " ---+---+---  Move # %i" % game.move_number
+  print "  %s | %s | %s" % (b[3], b[4], b[5])
+  print " ---+---+---  %s's turn" % conv_player_code(game.current_player)
+  print "  %s | %s | %s" % (b[6], b[7], b[8])
+  print
 
-    # randomly pick one of the possible valid moves
-    move = open_move_index[randint(0,len(open_move_index) - 1)]
-    self.make_move(self.current_player, move)
-  
-  def play(self):
-    """
-    method that handels game play
-    """
+def ask_human_for_move(game):
+  while True:
+    move = raw_input("Choose your spot: ")
+    try:
+      move = int(move) - 1
+    except ValueError:
+      print "You must enter an integer, 1-9."
+      continue
+
+    if move < 0 or move > 8:
+      print "That move is not even on the board."
+    elif game.board[move] != 0:
+      print "That spot is already taken."
+    else:
+      break
+
+  game.make_move(move)
+
+def random_move_ai(game):
+  """ The most basic AI, make moves at random """
+  # Make a list of all possible moves
+  open_move_index = []
+  for i, val in enumerate(game.board):
+    if val == 0:
+      open_move_index.append(i)
+
+  # randomly pick one of the possible valid moves
+  move = open_move_index[randint(0,len(open_move_index) - 1)]
+  game.make_move(move)
+
+def get_player_func(player_letter):
+  while True:
     print
-    print
-    print
-    print
-    print "Welcome to pyTacToe. Learning Python via TicTacToe."
+    print "Choose type for player", player_letter
+    print "    1: Human"
+    print "    2: Random move AI (stupid easy)"
+    choice = raw_input("Choice: ").lower()
+    if choice == "1" or choice[0] == "h":
+      return ask_human_for_move
+    elif choice == "2" or choice[0] == "r":
+      return random_move_ai
+    else:
+      print "Invalid choice, try again."
 
-    while not self.is_game_over:
-      self.display_game_board()
-      if self.current_player == 1:
-        move = self.ask_for_move()
-        self.make_move(self.current_player, move)
-      else:
-        self.ai_make_move()
-
-      self.current_player *= -1 # flip the current player
-
-# start up the game
+# create a new game instance
 game = Game()
-game.play()
+
+# print a greeting
+clear_screen()
+print "Welcome to pyTacToe. Learning Python via TicTacToe."
+
+# setup opponent preferences (human vs computer)
+playerXfunc = get_player_func("X")
+playerOfunc = get_player_func("O")
+
+# main game loop
+while not game.is_game_over:
+  display_game_board(game)
+
+  # take turns
+  if game.current_player == 1:
+    playerXfunc(game)
+  else:
+    playerOfunc(game)
+else:
+  # redisplay the game so the user can see the end result
+  display_game_board(game)
+  print
+  print
+  # ASCII art courtesy of http://patorjk.com/software/taag/
+  if game.winner == 0:
+    # cats game
+    print "   _____        _               "
+    print "  / ____|      | |              "
+    print " | |      __ _ | |_  ___        "
+    print " | |     / _` || __|/ __|       "
+    print " | |____| (_| || |_ \__ \       "
+    print "  \_____|\__,_| \__||___/       "
+    print "   __ _   __ _  _ __ ___    ___ "
+    print "  / _` | / _` || '_ ` _ \  / _ \\"
+    print " | (_| || (_| || | | | | ||  __/"
+    print "  \__, | \__,_||_| |_| |_| \___|"
+    print "   __/ |                        "
+    print "  |___/                         "
+  else:
+    display_game_board(game)
+    if conv_player_code(game.winner) == "X":
+      print "__   __            _              _ "
+      print "\ \ / /           (_)            | |"
+      print " \ V /  __      __ _  _ __   ___ | |"
+      print "  > <   \ \ /\ / /| || '_ \ / __|| |"
+      print " / . \   \ V  V / | || | | |\__ \|_|"
+      print "/_/ \_\   \_/\_/  |_||_| |_||___/(_)"
+    else:
+      print "  ____              _              _ "
+      print " / __ \            (_)            | |"
+      print "| |  | | __      __ _  _ __   ___ | |"
+      print "| |  | | \ \ /\ / /| || '_ \ / __|| |"
+      print "| |__| |  \ V  V / | || | | |\__ \|_|"
+      print " \____/    \_/\_/  |_||_| |_||___/(_)"
