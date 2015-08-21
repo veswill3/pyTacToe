@@ -102,10 +102,10 @@ def display_game_board(game):
   else:
     print " ---+---+---"
   print "  %s | %s | %s" % (b[6], b[7], b[8])
-  print
 
 def ask_human_for_move(game):
   while True:
+    print
     move = raw_input("Choose your spot: ")
     try:
       move = int(move) - 1
@@ -171,8 +171,7 @@ while not game.is_game_over:
 else:
   # redisplay the game so the user can see the end result
   display_game_board(game)
-  print
-  print
+
   # ASCII art courtesy of http://patorjk.com/software/taag/
   if game.winner == "":
     # cats game
@@ -188,19 +187,21 @@ else:
     print "  \__, | \__,_||_| |_| |_| \___|"
     print "   __/ |                        "
     print "  |___/                         "
+    print
   else:
-    display_game_board(game)
     if game.winner == "X":
-      print "__   __            _              _ "
-      print "\ \ / /           (_)            | |"
-      print " \ V /  __      __ _  _ __   ___ | |"
-      print "  > <   \ \ /\ / /| || '_ \ / __|| |"
-      print " / . \   \ V  V / | || | | |\__ \|_|"
-      print "/_/ \_\   \_/\_/  |_||_| |_||___/(_)"
+      print " __   __            _              _ "
+      print " \ \ / /           (_)            | |"
+      print "  \ V /  __      __ _  _ __   ___ | |"
+      print "   > <   \ \ /\ / /| || '_ \ / __|| |"
+      print "  / . \   \ V  V / | || | | |\__ \|_|"
+      print " /_/ \_\   \_/\_/  |_||_| |_||___/(_)"
+      print
     else:
-      print "  ____              _              _ "
-      print " / __ \            (_)            | |"
-      print "| |  | | __      __ _  _ __   ___ | |"
-      print "| |  | | \ \ /\ / /| || '_ \ / __|| |"
-      print "| |__| |  \ V  V / | || | | |\__ \|_|"
-      print " \____/    \_/\_/  |_||_| |_||___/(_)"
+      print "   ____              _              _ "
+      print "  / __ \            (_)            | |"
+      print " | |  | | __      __ _  _ __   ___ | |"
+      print " | |  | | \ \ /\ / /| || '_ \ / __|| |"
+      print " | |__| |  \ V  V / | || | | |\__ \|_|"
+      print "  \____/    \_/\_/  |_||_| |_||___/(_)"
+      print
