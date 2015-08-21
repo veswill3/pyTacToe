@@ -86,7 +86,10 @@ def display_game_board(game):
   b = []
   for i, v in enumerate(game.board):
     if v == "":
-      b.append(str(i + 1))
+      if not game.is_game_over:
+        b.append(str(i + 1))
+      else:
+        b.append(" ") # keep the spacing when we dont displat number helpers
     else:
       b.append(v)
 
@@ -94,7 +97,10 @@ def display_game_board(game):
   print "  %s | %s | %s" % (b[0], b[1], b[2])
   print " ---+---+---  Move # %i" % game.move_number
   print "  %s | %s | %s" % (b[3], b[4], b[5])
-  print " ---+---+---  %s's turn" % game.current_player
+  if not game.is_game_over:
+    print " ---+---+---  %s's turn" % game.current_player
+  else:
+    print " ---+---+---"
   print "  %s | %s | %s" % (b[6], b[7], b[8])
   print
 
