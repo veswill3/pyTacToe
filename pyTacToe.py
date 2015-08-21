@@ -3,10 +3,10 @@ import os
 
 class Game(object):
   def __init__(self):
-    self.board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    self.board = ["", "", "", "", "", "", "", "", ""]
     self.is_game_over = False
-    self.winner = 0 # nobody yet
-    self.current_player = 1
+    self.winner = "" # nobody yet
+    self.current_player = "X" # x always starts
     self.move_number = 0
 
   def make_move(self, move):
@@ -27,7 +27,7 @@ class Game(object):
     if move < 0 or move > 8:
       raise IndexError("move must be 0-8")
 
-    if self.board[move] != 0:
+    if self.board[move] != "":
       raise ValueError("move cannot point to a filled space")
 
     # update the board
@@ -42,7 +42,10 @@ class Game(object):
       self.is_game_over = True
 
     # flip the current player
-    self.current_player *= -1
+    if self.current_player == "X":
+      self.current_player = "O"
+    else:
+      self.current_player = "X"
 
   def did_player_win(self):
     """ Check if the current_player has won.
@@ -67,7 +70,7 @@ class Game(object):
       bool: True if the board is full (AKA cats game) and False otherwise.
     """
     for i in self.board:
-      if i == 0:
+      if i == "":
         return False
 
     return True
@@ -76,29 +79,22 @@ def clear_screen():
   """ http://stackoverflow.com/questions/517970/how-to-clear-python-interpreter-console """
   os.system(['clear','cls'][os.name == 'nt'])
 
-def conv_player_code(code):
-  """ convert an internal player code to a human readable value """
-  if code == 1:
-    return "X"
-  if code == -1:
-    return "O"
-
 def display_game_board(game):
   """ print the game board to the console in human readable form """
 
-  # convert the board to something we can easily print
+  # insert the space number in empty spaces so making moves is easy
   b = []
   for i, v in enumerate(game.board):
-    if v == 0:
-      b.append(str(i + 1)) # insert the space number to so making moves is easy
+    if v == "":
+      b.append(str(i + 1))
     else:
-      b.append(conv_player_code(v))
+      b.append(v)
 
   clear_screen()
   print "  %s | %s | %s" % (b[0], b[1], b[2])
   print " ---+---+---  Move # %i" % game.move_number
   print "  %s | %s | %s" % (b[3], b[4], b[5])
-  print " ---+---+---  %s's turn" % conv_player_code(game.current_player)
+  print " ---+---+---  %s's turn" % game.current_player
   print "  %s | %s | %s" % (b[6], b[7], b[8])
   print
 
@@ -113,7 +109,7 @@ def ask_human_for_move(game):
 
     if move < 0 or move > 8:
       print "That move is not even on the board."
-    elif game.board[move] != 0:
+    elif game.board[move] != "":
       print "That spot is already taken."
     else:
       break
@@ -125,7 +121,7 @@ def random_move_ai(game):
   # Make a list of all possible moves
   open_move_index = []
   for i, val in enumerate(game.board):
-    if val == 0:
+    if val == "":
       open_move_index.append(i)
 
   # randomly pick one of the possible valid moves
@@ -162,7 +158,7 @@ while not game.is_game_over:
   display_game_board(game)
 
   # take turns
-  if game.current_player == 1:
+  if game.current_player == "X":
     playerXfunc(game)
   else:
     playerOfunc(game)
@@ -172,7 +168,7 @@ else:
   print
   print
   # ASCII art courtesy of http://patorjk.com/software/taag/
-  if game.winner == 0:
+  if game.winner == "":
     # cats game
     print "   _____        _               "
     print "  / ____|      | |              "
@@ -188,7 +184,7 @@ else:
     print "  |___/                         "
   else:
     display_game_board(game)
-    if conv_player_code(game.winner) == "X":
+    if game.winner == "X":
       print "__   __            _              _ "
       print "\ \ / /           (_)            | |"
       print " \ V /  __      __ _  _ __   ___ | |"
