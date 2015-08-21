@@ -175,18 +175,18 @@ else:
   # ASCII art courtesy of http://patorjk.com/software/taag/
   if game.winner == "":
     # cats game
-    print "   _____        _               "
-    print "  / ____|      | |              "
-    print " | |      __ _ | |_  ___        "
-    print " | |     / _` || __|/ __|       "
-    print " | |____| (_| || |_ \__ \       "
-    print "  \_____|\__,_| \__||___/       "
-    print "   __ _   __ _  _ __ ___    ___ "
-    print "  / _` | / _` || '_ ` _ \  / _ \\"
-    print " | (_| || (_| || | | | | ||  __/"
-    print "  \__, | \__,_||_| |_| |_| \___|"
-    print "   __/ |                        "
-    print "  |___/                         "
+    print "   _____        _                "
+    print "  / ____|      | |               "
+    print " | |      __ _ | |_  ___         "
+    print " | |     / _` || __|/ __|        "
+    print " | |____| (_| || |_ \__ \        "
+    print "  \_____|\__,_| \__||___/        "
+    print "   __ _   __ _  _ __ ___    ___  "
+    print "  / _` | / _` || '_ ` _ \  / _ \ "
+    print " | (_| || (_| || | | | | ||  __/ "
+    print "  \__, | \__,_||_| |_| |_| \___| "
+    print "   __/ |                         "
+    print "  |___/                          "
     print
   else:
     if game.winner == "X":
