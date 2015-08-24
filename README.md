@@ -11,5 +11,5 @@ $ python pyTacToe.py
 ## TODO
 
  - [x] Ask what who each player is before starting game (human or various AIs)
- - [x] Add AI
- - [ ] Add better AI
+ - [x] Add AI (moves at random)
+ - [ ] Add machine learning AI (neural network trained via genetic algorithm)
