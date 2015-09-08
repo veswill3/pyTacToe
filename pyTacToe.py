@@ -1,6 +1,6 @@
-from random import randint
-import os
-from game import Game
+from game import *
+from network import Network
+from geneticAlgorithm import Population
 
 # Shim to make sure input works in python v 2 and 3
 try:
@@ -9,66 +9,7 @@ except NameError:
   pass
 # end python v 2 and 3 input shim
 
-def clear_screen():
-  """ http://stackoverflow.com/questions/517970/how-to-clear-python-interpreter-console """
-  os.system(['clear','cls'][os.name == 'nt'])
-
-def display_game_board(game):
-  """ print the game board to the console in human readable form """
-
-  # insert the space number in empty spaces so making moves is easy
-  b = []
-  for i, v in enumerate(game.board):
-    if v == "":
-      if not game.is_game_over:
-        b.append(str(i + 1))
-      else:
-        b.append(" ") # keep the spacing when we dont displat number helpers
-    else:
-      b.append(v)
-
-  clear_screen()
-  print("  %s | %s | %s" % (b[0], b[1], b[2]))
-  print(" ---+---+---  Move # %i" % game.move_number)
-  print("  %s | %s | %s" % (b[3], b[4], b[5]))
-  if not game.is_game_over:
-    print(" ---+---+---  %s's turn" % game.current_player)
-  else:
-    print(" ---+---+---")
-  print("  %s | %s | %s" % (b[6], b[7], b[8]))
-
-def ask_human_for_move(game):
-  while True:
-    print("")
-    move = input("Choose your spot: ")
-    try:
-      move = int(move) - 1
-    except ValueError:
-      print("You must enter an integer, 1-9.")
-      continue
-
-    if move < 0 or move > 8:
-      print("That move is not even on the board.")
-    elif game.board[move] != "":
-      print("That spot is already taken.")
-    else:
-      break
-
-  game.make_move(move)
-
-def random_move_ai(game):
-  """ The most basic AI, make moves at random """
-  # Make a list of all possible moves
-  open_move_index = []
-  for i, val in enumerate(game.board):
-    if val == "":
-      open_move_index.append(i)
-
-  # randomly pick one of the possible valid moves
-  move = open_move_index[randint(0,len(open_move_index) - 1)]
-  game.make_move(move)
-
-def get_player_func(player_letter):
+def choose_player(player_letter):
   while True:
     print("")
     print("Choose type for player %s" % player_letter)
@@ -77,66 +18,70 @@ def get_player_func(player_letter):
 
     choice = input("Choice: ").lower()
     if choice == "1" or choice[0] == "h":
-      return ask_human_for_move
+      return HumanPlayer()
     elif choice == "2" or choice[0] == "r":
-      return random_move_ai
+      return RandomPlayer()
     else:
       print("Invalid choice, try again.")
 
-# create a new game instance
-game = Game()
 
-# print a greeting
-clear_screen()
-print("Welcome to pyTacToe. Learning Python via TicTacToe.")
+print("Welcome to pyTacToe. Learning Python and machine learning via TicTacToe.")
+print("")
+print("What do you want to do?")
+print("    P: Play Tic Tac Toe")
+print("    T: Train a neural net to play")
 
-# setup opponent preferences (human vs computer)
-playerXfunc = get_player_func("X")
-playerOfunc = get_player_func("O")
+choice = input("Choice: ").lower()
 
-# main game loop
-while not game.is_game_over:
-  display_game_board(game)
+if choice[0] == "p":
+  # setup opponent preferences (human vs computer)
+  playerX = choose_player("X")
+  playerO = choose_player("O")
+  # create and play the game
+  game = Game(playerX, playerO)
+  game.play_game()
 
-  # take turns
-  if game.current_player == "X":
-    playerXfunc(game)
-  else:
-    playerOfunc(game)
-else:
-  # redisplay the game so the user can see the end result
-  display_game_board(game)
+elif choice[0] == "t":
+  pop = Population(50, 0.1, True)
 
-  # ASCII art courtesy of http://patorjk.com/software/taag/
-  if game.winner == "":
-    # cats game
-    print("   _____        _                ")
-    print("  / ____|      | |   _           ")
-    print(" | |      __ _ | |_ | )___       ")
-    print(" | |     / _` || __||// __|      ")
-    print(" | |____| (_| || |_   \__ \      ")
-    print("  \_____|\__,_| \__|  |___/      ")
-    print("   __ _   __ _  _ __ ___    ___  ")
-    print("  / _` | / _` || '_ ` _ \  / _ \ ")
-    print(" | (_| || (_| || | | | | ||  __/ ")
-    print("  \__, | \__,_||_| |_| |_| \___| ")
-    print("   __/ |                         ")
-    print("  |___/                          ")
+  while True:
     print("")
-  else:
-    if game.winner == "X":
-      print(" __   __            _              _ ")
-      print(" \ \ / /           (_)            | |")
-      print("  \ V /  __      __ _  _ __   ___ | |")
-      print("   > <   \ \ /\ / /| || '_ \ / __|| |")
-      print("  / . \   \ V  V / | || | | |\__ \|_|")
-      print(" /_/ \_\   \_/\_/  |_||_| |_||___/(_)")
-      print("")
+    print("What do you want to do?")
+    print("    P: Play against the current best neural net")
+    print("    #: Train X number of epochs (enter an int)")
+    print("    S: Save current population - comming soon")
+    print("    L: Load saved population - comming soon")
+    print("    Q: Quit")
+
+    choice = input("Choice: ").lower()
+    print("")
+
+    if choice[0] == "q":
+      break # quit
+
+    elif choice[0] == "s":
+      # save population to file
+      print("===Save not yet implemented but comming soon===")
+
+    elif choice[0] == "l":
+      # load population from file
+      print("===Load not yet implemented but comming soon===")
+
+    elif choice[0] == "p":
+      # play against the current best
+      best_player = pop.pool[0].player
+      game = Game(HumanPlayer(), best_player)
+      game.play_game()
+
     else:
-      print("   ____              _              _ ")
-      print("  / __ \            (_)            | |")
-      print(" | |  | | __      __ _  _ __   ___ | |")
-      print(" | |  | | \ \ /\ / /| || '_ \ / __|| |")
-      print(" | |__| |  \ V  V / | || | | |\__ \|_|")
-      print("  \____/    \_/\_/  |_||_| |_||___/(_)")
-      print("")
+      # Train for X epochs
+      try:
+        for epoch in range(int(choice)):
+          pop.advance_one_generation()
+      except ValueError:
+        print("Invalid choice, try again.")
+        continue
+
+
+else:
+  print("Unrecognized input - quitting")
