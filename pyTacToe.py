@@ -42,7 +42,7 @@ if choice[0] == "p":
     game.play_game()
 
 elif choice[0] == "t":
-    pop = Population(50, 0.1, True)
+    pop = Population(100, 0.05, [9, 9, 9], True)
 
     while True:
         print("")
@@ -70,7 +70,13 @@ elif choice[0] == "t":
         elif choice[0] == "p":
             # play against the current best
             best_player = pop.pool[0].player
-            game = Game(HumanPlayer(), best_player)
+
+            yn = input("Do you want to go first? ").lower()
+            if yn[0] == "y":
+                game = Game(HumanPlayer(), best_player)
+            else:
+                game = Game(best_player, HumanPlayer())
+
             game.play_game()
 
         else:

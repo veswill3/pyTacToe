@@ -27,17 +27,25 @@ class Individual(object):
 
 ### Population
 class Population(object):
-    """Measure the fitness of a population of Individual neural networks and
-    train them with a genetic algorithm
-    """
-    def __init__(self, size, carry_over_pct, show_progress=False):
-        self.size = size
-        self.carry_over_size = int(size * carry_over_pct)
+
+    def __init__(self, pop_size, carry_over_pct, net_sizes, show_progress=False):
+        """Teach a neural network to play tic tac toe with a genetic algorithm
+
+        Args:
+            pop_size (int): The total number of individuals in the population.
+            carry_over_pct (float 0-1): percentage of individuals that survive
+                or carry over from one generation to the next.
+            net_sizes (List[int]): see ``sizes`` in Network for more info.
+            show_progress (Optional[bool]): True to print info for each generation
+
+        """
+        self.pop_size = pop_size
+        self.carry_over_size = int(pop_size * carry_over_pct)
         self.generation = 1
         self.show_progress = show_progress
         self.pool = []
-        for i in range(size):
-            network = Network([9, 18, 9])
+        for i in range(pop_size):
+            network = Network(net_sizes)
             individual = Individual(self.generation, network)
             self.pool.append(individual)
 
@@ -60,7 +68,7 @@ class Population(object):
     def print_current_stats(self):
         best = self.pool[0]
         total_games = best.wins + best.ties + best.losses
-        worst = self.pool[self.size - 1]
+        worst = self.pool[self.pop_size - 1]
         print("Gen %i | spread: %i to %i  (best possible: %i)" % (self.generation, best.fitness(), worst.fitness(), total_games * 2))
 
     def advance_one_generation(self):
@@ -75,7 +83,7 @@ class Population(object):
             self.print_current_stats()
 
         # We only want the cream of the crop so remove everything after the carry_over_size
-        for index in range(self.size - 1, self.carry_over_size, -1):
+        for index in range(self.pop_size - 1, self.carry_over_size, -1):
             del self.pool[index]
 
         # clear current stats as fitness only applies to current generation
@@ -96,5 +104,5 @@ class Population(object):
             child = crossover_breed(mom_net, dad_net)
             indivdual = Individual(self.generation, child)
             self.pool.append(indivdual)
-            if len(self.pool) == self.size:
+            if len(self.pool) == self.pop_size:
                 break
