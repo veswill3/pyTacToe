@@ -1,6 +1,8 @@
 from game import *
 from network import Network
 from geneticAlgorithm import Population
+from geneticAlgorithm import load_population_from_file
+import os.path
 
 # Shim to make sure input works in python v 2 and 3
 try:
@@ -42,15 +44,21 @@ if choice[0] == "p":
     game.play_game()
 
 elif choice[0] == "t":
-    pop = Population(1000, 0.1, [9, 9, 9], True)
+    if os.path.isfile("saved_population.p"):
+        # load population from file if it exists
+        pop = load_population_from_file("saved_population.p")
+        print("[saved population loaded]")
+    else:
+        # otherwise create a new one
+        pop = Population(1000, 0.1, [9, 9, 9])
+        print("[new population created]")
 
     while True:
         print("")
         print("What do you want to do?")
         print("    P: Play against the current best neural net")
         print("    #: Train X number of epochs (enter an int)")
-        print("    S: Save current population - comming soon")
-        print("    L: Load saved population - comming soon")
+        print("    D: Delete current population and start a new one")
         print("    Q: Quit")
 
         choice = input("Choice: ").lower()
@@ -59,13 +67,13 @@ elif choice[0] == "t":
         if choice[0] == "q":
             break # quit
 
-        elif choice[0] == "s":
-            # save population to file
-            print("===Save not yet implemented but comming soon===")
-
-        elif choice[0] == "l":
-            # load population from file
-            print("===Load not yet implemented but comming soon===")
+        elif choice[0] == "d":
+            yn = input("Are you sure? (enter a full YES) ").lower()
+            if yn == "yes":
+                pop = Population(1000, 0.1, [9, 9, 9])
+                print("[new population created]")
+            else:
+                print("[Aborted]")
 
         elif choice[0] == "p":
             # play against the current best

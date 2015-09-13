@@ -9,6 +9,7 @@ to them as a training mechanism to train a neural network to play tic tac toe
 from network import *
 from game import *
 from random import randint
+import pickle
 
 
 ### Individual
@@ -30,7 +31,7 @@ class Individual(object):
 ### Population
 class Population(object):
 
-    def __init__(self, pop_size, carry_over_pct, net_sizes, show_progress=False):
+    def __init__(self, pop_size, carry_over_pct, net_sizes):
         """Teach a neural network to play tic tac toe with a genetic algorithm
 
         Args:
@@ -44,7 +45,6 @@ class Population(object):
         self.pop_size = pop_size
         self.carry_over_size = int(pop_size * carry_over_pct)
         self.generation = 1
-        self.show_progress = show_progress
         self.pool = []
         for i in range(pop_size):
             network = Network(net_sizes)
@@ -79,8 +79,7 @@ class Population(object):
         """
         self.measure_fitness()
 
-        if self.show_progress:
-            self.print_current_stats()
+        self.print_current_stats()
 
         new_pool = []
         # We only want the cream of the crop, dont worry about copying after the carry_over_size
@@ -100,4 +99,16 @@ class Population(object):
                 new_pool.append(childIndividual)
                 if len(new_pool) == self.pop_size:
                     self.pool = new_pool
+                    self.save_to_file("saved_population.p")
                     return
+
+    def save_to_file(self, filename):
+        """Save the population to the file ``filename``."""
+        pickle.dump(self, open(filename, "wb"))
+
+
+def load_population_from_file(filename):
+    """Load a population from the file ``filename``.  Returns an
+    instance of Population.
+    """
+    return pickle.load(open(filename, "rb"))

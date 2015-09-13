@@ -17,7 +17,7 @@ $ python pyTacToe.py
  - [x] Ask what who each player is before starting game (human or various AIs)
  - [x] Add AI (moves at random)
  - [x] Add machine learning AI (neural network trained via genetic algorithm)
- - [ ] Add save and load functionality
+ - [x] Add save and load functionality
  - [ ] Tweak ML algorithm so that it actually converges
 
 ## Acknowledgements
