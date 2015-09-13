@@ -45,6 +45,7 @@ class Population(object):
         self.pop_size = pop_size
         self.carry_over_size = int(pop_size * carry_over_pct)
         self.generation = 1
+        self.best_individuals_history = []
         self.pool = []
         for i in range(pop_size):
             network = Network(net_sizes)
@@ -70,6 +71,7 @@ class Population(object):
 
     def print_current_stats(self):
         best = self.pool[0]
+        self.best_individuals_history.append(best)
         print("Current gen: %i    best: %i from gen %i" % (self.generation, best.fitness(), best.generation))
 
     def advance_one_generation(self):
