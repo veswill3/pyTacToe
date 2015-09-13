@@ -42,7 +42,7 @@ class Network():
         """
         # self.biases = [np.random.randn(y, 1) for y in self.sizes[1:]] # omit using a bias for now
         if weights is None:
-            self.weights = [np.random.randn(y, x)/np.sqrt(x) 
+            self.weights = [np.random.randn(y, x)/np.sqrt(x)
                             for x, y in zip(self.sizes[:-1], self.sizes[1:])]
         else:
             self.weights = weights
@@ -80,25 +80,28 @@ def load_from_file(filename):
 
 
 #### Genetic algorithm related
-def crossover_breed(mom, dad):
-    """ return a new child as breed from parents using crossover """
-    if mom.sizes != dad.sizes:
-        raise IndexError("Sizes of parents must be the same")
-
+def mutate_network(dad):
+    """ return a new child as a mutation of its father """
     new_weights = []
-    # interate over wegihts between each layer
-    for l in range(len(mom.weights)):
-        # make a deep copy of the weight matrix between these layers. TODO - find a better way
-        new_weights.append(np.empty_like(mom.weights[l]))
-        new_weights[l][:] = mom.weights[l]
-        # iterate over each weight
-        for i, w in np.ndenumerate(dad.weights[l]):
-            if random.random() < .02: # 2% chance that we will mutate
-                new_weights[l][(i)] = np.random.randn()
-            elif random.random() > .5: # 50% chance that we will take a weight from the dad
-                new_weights[l][(i)] = w
+    # make a deep copy of the weight matrix between these layers. TODO - find a better way
+    for l in range(len(dad.weights)):
+        new_weights.append(np.empty_like(dad.weights[l]))
+        new_weights[l][:] = dad.weights[l]
 
-    return Network(mom.sizes, new_weights)
+    chance = 1 # start at a 100% chance that we will mutate something
+    num_mutations = 0
+    while random.random() < chance:
+        num_mutations += 1
+        # randomly choose which gene (weight) to mutate
+        l = random.randint(0, len(new_weights) - 1)
+        i = random.randint(0, len(new_weights[l]) - 1)
+        j = random.randint(0, len(new_weights[l][i]) - 1)
+        # randomly choose a new value
+        new_weights[l][i][j] = np.random.randn()
+        # reduce the chance that we mutate again
+        chance -= 0.1 # reduce the chance we will mutate by 10%
+
+    return Network(dad.sizes, new_weights)
 
 
 #### Miscellaneous functions

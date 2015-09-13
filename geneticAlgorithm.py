@@ -22,7 +22,9 @@ class Individual(object):
 
     def get_game_player(self): return NeuralnetPlayer(self.network, self)
 
-    def fitness(self): return 2 * self.wins + self.ties - 2 * self.losses
+    def fitness(self):
+        # Winning and tying is ok but loosing is bad
+        return self.wins + self.ties - 6 * self.losses
 
 
 ### Population
@@ -52,57 +54,50 @@ class Population(object):
     def measure_fitness(self):
         """Measure the fitness of each neural network by playing games of tic tac toe"""
         for i in self.pool:
-            # play random player 10 times as player one and 10 times as player 2
-            for cnt in range(10):
+            # play random player 500 times as player X and 500 times as player O (1000 games total)
+            for cnt in range(500):
                 Game(i.player, RandomPlayer()).play_game()
                 Game(RandomPlayer(), i.player).play_game()
 
+            # remove this for now
             # play againt every other individual
-            for j in self.pool:
-                if i != j:
-                    Game(i.player, j.player).play_game()
+            # for j in self.pool:
+            #     if i != j:
+            #         Game(i.player, j.player).play_game()
 
         # sort the list, best at the beginning
         self.pool.sort(key=Individual.fitness, reverse=True)
 
     def print_current_stats(self):
         best = self.pool[0]
-        total_games = best.wins + best.ties + best.losses
-        worst = self.pool[self.pop_size - 1]
-        print("Gen %i | spread: %i to %i  (best possible: %i)" % (self.generation, best.fitness(), worst.fitness(), total_games * 2))
+        print("Current gen: %i    best: %i from gen %i" % (self.generation, best.fitness(), best.generation))
 
     def advance_one_generation(self):
         """create a new generation based on the fitness of the current generation.
         After measureing the fitness of each individual, cull the cream of the
-        crop and breed them using crossover and mutation to (hopefully) produce
-        a more fit generation
+        crop and breed them using mutation to produce a more fit generation
         """
         self.measure_fitness()
 
         if self.show_progress:
             self.print_current_stats()
 
-        # We only want the cream of the crop so remove everything after the carry_over_size
-        for index in range(self.pop_size - 1, self.carry_over_size, -1):
-            del self.pool[index]
-
-        # clear current stats as fitness only applies to current generation
-        for i in self.pool:
+        new_pool = []
+        # We only want the cream of the crop, dont worry about copying after the carry_over_size
+        for index in range(self.carry_over_size - 1):
+            i = self.pool[index]
+            # clear current stats as fitness only applies to current generation
             i.wins, i.losses, i.ties = 0, 0, 0
+            new_pool.append(i)
 
-        # start breeding the new generation
         self.generation += 1
-        # top 2 breed for sure a few times. arranged marriage I guess
-        for x in range(self.carry_over_size):
-            child = crossover_breed(self.pool[0].net, self.pool[1].net)
-            indivdual = Individual(self.generation, child)
-            self.pool.append(indivdual)
-        # then breed randomly among the cream of the crop until the list is at its full size
+
+        # breed the rest of the new generation
         while True:
-            mom_net = self.pool[randint(0, self.carry_over_size)].net # randomly pick a mommy
-            dad_net = self.pool[randint(0, self.carry_over_size)].net # randomly pick a daddy
-            child = crossover_breed(mom_net, dad_net)
-            indivdual = Individual(self.generation, child)
-            self.pool.append(indivdual)
-            if len(self.pool) == self.pop_size:
-                break
+            for i in new_pool:
+                child = mutate_network(i.net)
+                childIndividual = Individual(self.generation, child)
+                new_pool.append(childIndividual)
+                if len(new_pool) == self.pop_size:
+                    self.pool = new_pool
+                    return

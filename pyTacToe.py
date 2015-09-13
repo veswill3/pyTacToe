@@ -42,7 +42,7 @@ if choice[0] == "p":
     game.play_game()
 
 elif choice[0] == "t":
-    pop = Population(100, 0.05, [9, 9, 9], True)
+    pop = Population(1000, 0.1, [9, 9, 9], True)
 
     while True:
         print("")
