@@ -23,6 +23,11 @@ else:
     pop = Population(1000, 0.1, [9, 9, 9])
     print("[new population created]")
 
+print("Population size: %i" % pop.pop_size)
+print("Current generation: %i" % pop.generation)
+print("Network sizes: %s" % pop.pool[0].net.sizes)
+print("Survivors each gen: %i" % pop.carry_over_size)
+
 while True:
     print("")
     print("What do you want to do?")
