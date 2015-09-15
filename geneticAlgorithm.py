@@ -10,6 +10,7 @@ from network import *
 from game import *
 from random import randint
 import pickle
+import sys
 
 
 ### Individual
@@ -54,18 +55,33 @@ class Population(object):
 
     def measure_fitness(self):
         """Measure the fitness of each neural network by playing games of tic tac toe"""
+
+        total_games = float(self.pop_size * (1000 + self.pop_size))
+        print_interval = total_games / 10000.0 # so we get updates at the hundredths place in a percent
+        games_played = 0
+
         for i in self.pool:
             # play random player 500 times as player X and 500 times as player O (1000 games total)
             for cnt in range(500):
                 Game(i.player, RandomPlayer()).play_game()
                 Game(RandomPlayer(), i.player).play_game()
+                games_played += 2
+                if games_played % print_interval == 0:
+                    percent = games_played / total_games * 100
+                    sys.stdout.write("\rMeasuring fitness: %1.2f%% through generation" % percent)
+                    sys.stdout.flush()
 
-            # remove this for now
-            # play againt every other individual
-            # for j in self.pool:
-            #     if i != j:
-            #         Game(i.player, j.player).play_game()
+            # play againt every other individual (including self, because why not)
+            for j in self.pool:
+                Game(i.player, j.player).play_game()
+                games_played += 1
+                if games_played % print_interval == 0:
+                    percent = games_played / total_games * 100
+                    sys.stdout.write("\rMeasuring fitness: %1.2f%% through generation" % percent)
+                    sys.stdout.flush()
 
+        # clean up the print display
+        print("")
         # sort the list, best at the beginning
         self.pool.sort(key=Individual.fitness, reverse=True)
 
