@@ -56,29 +56,30 @@ class Population(object):
     def measure_fitness(self):
         """Measure the fitness of each neural network by playing games of tic tac toe"""
 
-        total_games = float(self.pop_size * (1000 + self.pop_size))
-        print_interval = total_games / 10000.0 # so we get updates at the hundredths place in a percent
+        num_games_vs_rand = 500
+        total_games = float(self.pop_size * (num_games_vs_rand * 2 + self.pop_size))
+        print_interval = total_games / 100.0
         games_played = 0
+
+        def print_progress():
+            if games_played % print_interval == 0:
+                percent = games_played / total_games * 100
+                sys.stdout.write("\rMeasuring fitness: %1.0f%% through generation" % percent)
+                sys.stdout.flush()
 
         for i in self.pool:
             # play random player 500 times as player X and 500 times as player O (1000 games total)
-            for cnt in range(500):
+            for cnt in range(num_games_vs_rand):
                 Game(i.player, RandomPlayer()).play_game()
                 Game(RandomPlayer(), i.player).play_game()
                 games_played += 2
-                if games_played % print_interval == 0:
-                    percent = games_played / total_games * 100
-                    sys.stdout.write("\rMeasuring fitness: %1.2f%% through generation" % percent)
-                    sys.stdout.flush()
+                print_progress()
 
             # play againt every other individual (including self, because why not)
             for j in self.pool:
                 Game(i.player, j.player).play_game()
                 games_played += 1
-                if games_played % print_interval == 0:
-                    percent = games_played / total_games * 100
-                    sys.stdout.write("\rMeasuring fitness: %1.2f%% through generation" % percent)
-                    sys.stdout.flush()
+                print_progress()
 
         # clean up the print display
         print("")
@@ -88,7 +89,7 @@ class Population(object):
     def print_current_stats(self):
         best = self.pool[0]
         self.best_individuals_history.append(best)
-        print("Current gen: %i    best: %i from gen %i" % (self.generation, best.fitness(), best.generation))
+        print("Current gen: %i | best: %i from gen %i with %i losses" % (self.generation, best.fitness(), best.generation, best.losses))
 
     def advance_one_generation(self):
         """create a new generation based on the fitness of the current generation.

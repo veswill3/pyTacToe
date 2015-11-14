@@ -11,6 +11,9 @@ except NameError:
     pass
 # end python v 2 and 3 input shim
 
+def create_population():
+    return Population(400, 0.1, [9, 9, 9])
+
 print("Welcome to pyTacToe. Learning Python and machine learning via TicTacToe.")
 print("")
 
@@ -20,7 +23,7 @@ if os.path.isfile("saved_population.p"):
     print("[saved population autoloaded]")
 else:
     # otherwise create a new one
-    pop = Population(1000, 0.1, [9, 9, 9])
+    pop = create_population()
     print("[new population created]")
 
 print("Population size: %i" % pop.pop_size)
@@ -45,7 +48,7 @@ while True:
     elif choice[0] == "d":
         yn = input("Are you sure? (enter a full YES) ").lower()
         if yn == "yes":
-            pop = Population(1000, 0.1, [9, 9, 9])
+            pop = create_population()
             print("[new population created]")
         else:
             print("[Aborted]")
