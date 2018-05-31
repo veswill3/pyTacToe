@@ -56,8 +56,8 @@ class Population(object):
     def measure_fitness(self):
         """Measure the fitness of each neural network by playing games of tic tac toe"""
 
-        num_games_vs_rand = 500
-        total_games = float(self.pop_size * (num_games_vs_rand * 2 + self.pop_size))
+        num_games_vs_rand = 100
+        total_games = float(self.pop_size * (num_games_vs_rand * 2))
         print_interval = total_games / 100.0
         games_played = 0
 
@@ -76,10 +76,10 @@ class Population(object):
                 print_progress()
 
             # play againt every other individual (including self, because why not)
-            for j in self.pool:
-                Game(i.player, j.player).play_game()
-                games_played += 1
-                print_progress()
+            # for j in self.pool:
+            #     Game(i.player, j.player).play_game()
+            #     games_played += 1
+            #     print_progress()
 
         # clean up the print display
         print("")

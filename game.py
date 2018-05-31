@@ -204,13 +204,48 @@ class HumanPlayer(Player):
 
 
 class RandomPlayer(Player):
-    """A type of player that will make moves at random"""
+    """A type of player that will make moves at random unless it means a win or loss"""
     def get_move(self, game):
-        # Make a list of all possible moves
         open_move_index = []
+        must_block_index = ""
         for i, val in enumerate(game.board):
             if val == "":
-                open_move_index.append(i)
+                open_move_index.append(i) # Make a list of all possible moves
+
+                # check if move would win (if so take it)
+                b = list(game.board) # make a copy of the board so we can check it out
+                p = self.player_letter
+                b[i] = p # pretend that we made this move
+                if ((b[0] == p and b[1] == p and b[2] == p) or # across the top
+                    (b[3] == p and b[4] == p and b[5] == p) or # across the middle
+                    (b[6] == p and b[7] == p and b[8] == p) or # across the bottom
+                    (b[0] == p and b[3] == p and b[6] == p) or # down the left side
+                    (b[1] == p and b[4] == p and b[7] == p) or # down the middle
+                    (b[2] == p and b[5] == p and b[8] == p) or # down the right side
+                    (b[0] == p and b[4] == p and b[8] == p) or # diagonal
+                    (b[2] == p and b[4] == p and b[6] == p)): # diagonal
+                    return i
+
+                # check if opponent would win (block, unless u can win)
+                # flip who we are checking
+                if p == "X":
+                    p = "O"
+                else:
+                    p = "X"
+                b[i] = p # pretend that the opponent made this move
+                if ((b[0] == p and b[1] == p and b[2] == p) or # across the top
+                    (b[3] == p and b[4] == p and b[5] == p) or # across the middle
+                    (b[6] == p and b[7] == p and b[8] == p) or # across the bottom
+                    (b[0] == p and b[3] == p and b[6] == p) or # down the left side
+                    (b[1] == p and b[4] == p and b[7] == p) or # down the middle
+                    (b[2] == p and b[5] == p and b[8] == p) or # down the right side
+                    (b[0] == p and b[4] == p and b[8] == p) or # diagonal
+                    (b[2] == p and b[4] == p and b[6] == p)): # diagonal
+                    must_block_index = i
+                b[i] = "" # set it back to open
+
+        if must_block_index != "":
+            return must_block_index
 
         # randomly pick one of the possible valid moves
         move = open_move_index[randint(0,len(open_move_index) - 1)]

@@ -12,7 +12,7 @@ except NameError:
 # end python v 2 and 3 input shim
 
 def create_population():
-    return Population(400, 0.1, [9, 9, 9])
+    return Population(200, 0.1, [9, 18, 12, 9])
 
 print("Welcome to pyTacToe. Learning Python and machine learning via TicTacToe.")
 print("")
